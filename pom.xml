@@ -34,6 +34,12 @@
             </dependency>
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-cluster-metrics_2.12</artifactId>
+                <version>${akka-actor_2.12.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-slf4j_2.12</artifactId>
                 <version>${akka-actor_2.12.version}</version>
             </dependency>
