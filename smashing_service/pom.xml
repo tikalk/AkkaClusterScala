@@ -52,16 +52,15 @@
         </dependency>
 
 
-        <!--<dependency>-->
-            <!--<groupId>org.json4s</groupId>-->
-            <!--<artifactId>json4s-native_${scala.version}</artifactId>-->
-            <!--<version>3.6.0-M1</version>-->
-        <!--</dependency>-->
-
-        <!-- https://mvnrepository.com/artifact/org.json4s/json4s-jackson -->
         <dependency>
             <groupId>org.json4s</groupId>
-            <artifactId>json4s-jackson_2.12</artifactId>
+            <artifactId>json4s-native_${scala.version}</artifactId>
+            <version>3.6.0-M1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-jackson_${scala.version}</artifactId>
             <version>3.6.0-M1</version>
         </dependency>
 
