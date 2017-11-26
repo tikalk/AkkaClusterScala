@@ -1,19 +1,22 @@
 package com.tikal.antsmasher.controllers
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage, UpgradeToWebSocket}
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Flow, Sink, Source}
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.tikal.antsmasher.actors.Game.{AntMessage, StartGame}
+import com.tikal.antsmasher.actors.Manager
+import com.tikal.antsmasher.domain.{Ant, HitType}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.StdIn
 
-class WSController {
+class WSController(implicit val system : ActorSystem) {
 
-  implicit val system = ActorSystem()
+//  implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
 
   //#websocket-handler
@@ -26,7 +29,27 @@ class WSController {
       // rather we simply stream it back as the tail of the response
       // this means we might start sending the response even before the
       // end of the incoming message has been received
-      case tm: TextMessage => TextMessage(Source.single("Hello ") ++ tm.textStream) :: Nil
+      case tm: TextMessage => {
+        val command = tm.getStrictText
+        val manager = system.actorSelection("/user/GameManager")
+
+        if (command.startsWith("start ")){
+          val gameId = Integer.parseInt(command.substring("start ".length))
+          manager ! StartGame(gameId)
+          TextMessage(Source.single(s"start game $gameId")) :: Nil
+        }
+        else if (command.startsWith("ant ")){
+          val params = command.substring("ant ".length).split(',')
+          def antId = Integer.parseInt(params(0))
+          def gameId = Integer.parseInt(params(1))
+          def teamId = Integer.parseInt(params(2))
+          manager ! AntMessage(Ant(antId,gameId, teamId,HitType.Hit))
+          TextMessage(Source.single("got ant message ") ++ tm.textStream) :: Nil
+        }
+        else{
+          TextMessage(Source.single("unknown message ") ++ tm.textStream) :: Nil
+        }
+      }
       case bm: BinaryMessage =>
         // ignore binary messages but drain content to avoid the stream being clogged
         bm.dataStream.runWith(Sink.ignore)

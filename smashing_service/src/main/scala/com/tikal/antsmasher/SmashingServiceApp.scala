@@ -16,15 +16,16 @@ object SmashingServiceApp {
   }
 
   def main(args: Array[String]): Unit = {
-    val system = ActorSystem("SmashingService")
+    implicit val system = ActorSystem("SmashingService")
     val manager = system.actorOf(Props(classOf[Manager]), "GameManager")
+    manager ! StartGame(1)
 
 
 
-    loadGames(manager)
+//    loadGames(manager)
 
-    Thread.sleep(1000)
-    val selection = system.actorSelection("/user/GameManager/Game1")
+//    Thread.sleep(1000)
+//    val selection = system.actorSelection("/user/GameManager/Game1")
 
     new WSController()
 //    selection ! Ant(1,2,3,HitType.Hit)

@@ -18,16 +18,22 @@ class Game(val gameId: Integer) extends Actor with ActorLogging {
 
   override def receive = {
     case StartGame(gameId) => {
-      if (gameId == this.gameId && gameState!=GameState.Started)
+      if (gameId == this.gameId && gameState!=GameState.Started) {
+        log.info("become active")
         context.become(activeGame)
+      }
     }
     case StopGame(gameId ) => {
-      if (gameId == this.gameId && gameState!=GameState.Stopped)
+      if (gameId == this.gameId && gameState!=GameState.Stopped) {
+        log.info("become nonactive")
         context.become(nonActiveGame)
+      }
     }
     case PauseGame(gameId) => {
-      if (gameId == this.gameId && gameState!=GameState.Paused)
+      if (gameId == this.gameId && gameState!=GameState.Paused) {
         context.become(nonActiveGame)
+        log.info("become nonactive")
+      }
     }
   }
 
@@ -40,12 +46,14 @@ class Game(val gameId: Integer) extends Actor with ActorLogging {
 
   def activeGame: Receive = {
     case ant: Ant => {
+      log.info(s"ant: $ant")
+      log.info(s"here: $ant")
       implicit val formats = DefaultFormats
       //      val ant = parse(js).extract[Ant]
 
-      val prevoiusHit = ants.get(ant.id)
+      val previousHit = ants.get(ant.id)
       val antStatus =
-        if (prevoiusHit.isDefined && ant.hitType == HitType.Smash) {
+        if (previousHit.isDefined && ant.hitType == HitType.Smash) {
           Ant(ant.id, ant.gameId, ant.teamId, HitType.Hit)
         }
         else ant
@@ -67,5 +75,7 @@ object Game {
   case class StopGame(val gameId: Integer)
 
   case class PauseGame(val gameId: Integer)
+
+  case class AntMessage(val ant : Ant)
 
 }
