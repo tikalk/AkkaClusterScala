@@ -1,6 +1,5 @@
 package com.antSmash.admin.model
 
-
 class RealTimeData(//var id : java.lang.String,
                   val stationId : String,
                 //  var date : String,
