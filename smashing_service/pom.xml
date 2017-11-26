@@ -11,6 +11,10 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <mainclass>com.tikal.antsmasher.SmashingServiceApp</mainclass>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
@@ -48,11 +52,11 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.json4s</groupId>
-            <artifactId>json4s-native_${scala.version}</artifactId>
-            <version>3.6.0-M1</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.json4s</groupId>-->
+            <!--<artifactId>json4s-native_${scala.version}</artifactId>-->
+            <!--<version>3.6.0-M1</version>-->
+        <!--</dependency>-->
 
         <!-- https://mvnrepository.com/artifact/org.json4s/json4s-jackson -->
         <dependency>
@@ -62,7 +66,6 @@
         </dependency>
 
 
-
     </dependencies>
 
     <build>
@@ -70,6 +73,10 @@
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

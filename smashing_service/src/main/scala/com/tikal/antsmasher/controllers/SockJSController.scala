@@ -30,7 +30,6 @@ class MySockJSActor(out: ActorRef) extends Actor {
       //parse message
       val ant = Ant(1,2,1,HitType.Miss)
 
-
       out ! ("I received your message: " + msg)
 
   }
