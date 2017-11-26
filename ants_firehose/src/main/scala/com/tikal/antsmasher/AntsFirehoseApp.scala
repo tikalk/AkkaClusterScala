@@ -37,16 +37,37 @@ object AntsGenerator {
   case class Produce(ants : List[AntLocation])
 }
 
-case class AntLocation(id : String, x : Int, y : Int, species : String);
+case class AntLocation(id : String, x : Int, y : Int, species : String) {
+  def toJson() : String = {
+    "{\"id\":\"" + id + "\",\"species\":\"" + species + "\",\"xPromil\":" + x + ",\"yPromil\":" + y + "}"
+
+  }
+}
 
 
 class AntsGenerator extends Actor with ActorLogging {
   var allAnts = List.empty[AntLocation];
   var started : Boolean = false ;
+  var counter = 1
 
-  def moveAnt(antlocation: AntLocation): AntLocation = {
-    AntLocation( antlocation.id, antlocation.x + 1, antlocation.y + 1, antlocation.species) ;
+  def moveAnt(antlocation: AntLocation): Option[AntLocation] = {
+    def decideMove() : (Int, Int) = {
+      (if (Random.nextInt(2) == 0) -1 else 1,     // x coordinate - same probability for left and right
+        if (Random.nextFloat()<.25) -1 else 1     // y coordinate - go back only in 25% of the time
+        )
+    }
 
+    val (deltaX, deltaYorig) = decideMove()
+    val newX = antlocation.x + deltaX
+    // fix deltaY - if ant in the first 10%, go forward
+    val deltaY = if (antlocation.y < 10) 1 else deltaYorig
+    val newY = antlocation.y + deltaY
+    if ((newX >= 100) || (newY >= 100) || (newX < 0) || (newY < 0)) {
+      None
+    }
+    else {
+      Some(AntLocation(antlocation.id, newX, newY, antlocation.species))
+    }
   }
 
   def produceAnts(): Unit = {
@@ -55,12 +76,12 @@ class AntsGenerator extends Actor with ActorLogging {
 
     while (started) {
       log.info("while " + allAnts.size)
-      allAnts = allAnts.map(antLocation => moveAnt(antLocation))
+      allAnts = allAnts.flatMap(antLocation => moveAnt(antLocation))
 
       // once out of 10, create a new ant
       if (Random.nextInt(10) <= 3 ) {
         val newAnt = generateNewAnt()
-        allAnts =  newAnt :: allAnts ;
+        allAnts = ( newAnt :: allAnts ) .sortWith((x,y) => x.id<y.id);
       }
 
       // sleep 1 second // TODO replace with a scheduled actor?
@@ -79,12 +100,14 @@ class AntsGenerator extends Actor with ActorLogging {
       case _ => AntSpecies.A
     }
     val (x, y) = species match {
-      case AntSpecies.A => (100,0)
-      case AntSpecies.B => (0,0)
-      case AntSpecies.C => (0,100)
+      case AntSpecies.A => (25,0)
+      case AntSpecies.B => (50,0)
+      case AntSpecies.C => (75,0)
     }
 
-    AntLocation(id = System.nanoTime().toString, x , y , species)
+    counter+=1
+    val c : String = counter.toString
+    AntLocation(id = c + "-" + System.nanoTime().toString, x , y , species)
   }
 
 

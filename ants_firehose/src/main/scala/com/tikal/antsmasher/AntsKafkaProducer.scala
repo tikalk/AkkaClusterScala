@@ -26,7 +26,7 @@ class AntsKafkaProducer extends Actor with ActorLogging {
       // https://www.programcreek.com/scala/akka.kafka.ProducerSettings  example 18
       ants.foreach(antLocation => {
         log.info("push ant to kafka " + antLocation)
-        Future { kafkaProducer.send(antLocation.toString) }
+        Future { kafkaProducer.send(antLocation.toJson) }
       })
     }
     case x : Any => log.info("unknown message " + x)
